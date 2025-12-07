@@ -1,0 +1,12 @@
+services:
+  - type: worker
+    name: telegram-tech-news-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 news_bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+

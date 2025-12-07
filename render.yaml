@@ -1,0 +1,12 @@
+
+services:
+  - type: web
+    name: telegram-bot-24-7
+    runtime: python
+    buildCommand: pip install -r telegram_tech_news/requirements.txt
+    startCommand: gunicorn telegram_tech_news.unified_server:app
+    plan: free
+    region: oregon
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0

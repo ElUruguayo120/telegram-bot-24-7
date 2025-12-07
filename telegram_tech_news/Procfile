@@ -1,0 +1,2 @@
+
+web: gunicorn telegram_tech_news.unified_server:app

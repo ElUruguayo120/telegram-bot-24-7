@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarma Digital - Tiempo Real</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .clock-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .current-time {
+            font-size: 4em;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 5px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .current-date {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            font-weight: 300;
+        }
+
+        .alarm-section {
+            margin-top: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.5em;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .countdown-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+            display: none;
+        }
+
+        .countdown-display.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .countdown-time {
+            font-size: 3.5em;
+            font-weight: 700;
+            color: white;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .countdown-label {
+            font-size: 1em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 10px;
+            font-weight: 300;
+        }
+
+        .alarm-ringing {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .status-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-message.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .status-message.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4caf50;
+            border: 2px solid #4caf50;
+        }
+
+        .status-message.warning {
+            background: rgba(255, 152, 0, 0.1);
+            color: #ff9800;
+            border: 2px solid #ff9800;
+        }
+
+        .status-message.danger {
+            background: rgba(244, 67, 54, 0.1);
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .current-time {
+                font-size: 2.5em;
+                letter-spacing: 3px;
+            }
+
+            .countdown-time {
+                font-size: 2.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏰ Alarma Digital</h1>
+        
+        <!-- Reloj en tiempo real -->
+        <div class="clock-display">
+            <div class="current-time" id="currentTime">00:00:00</div>
+            <div class="current-date" id="currentDate">Cargando...</div>
+        </div>
+
+        <!-- Configuración de alarma -->
+        <div class="alarm-section">
+            <div class="input-group">
+                <div class="time-input">
+                    <label for="hours">Horas</label>
+                    <input type="number" id="hours" min="0" max="23" value="0" placeholder="00">
+                </div>
+                <div class="time-input">
+                    <label for="minutes">Minutos</label>
+                    <input type="number" id="minutes" min="0" max="59" value="1" placeholder="00">
+                </div>
+                <div class="time-input">
+                    <label for="seconds">Segundos</label>
+                    <input type="number" id="seconds" min="0" max="59" value="0" placeholder="00">
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-start" onclick="startAlarm()">▶️ Iniciar</button>
+                <button class="btn-stop" onclick="stopAlarm()">⏸️ Detener</button>
+                <button class="btn-reset" onclick="resetAlarm()">🔄 Reiniciar</button>
+            </div>
+        </div>
+
+        <!-- Cuenta regresiva -->
+        <div class="countdown-display" id="countdownDisplay">
+            <div class="countdown-time" id="countdownTime">00:00:00</div>
+            <div class="countdown-label">Tiempo restante</div>
+        </div>
+
+        <!-- Mensajes de estado -->
+        <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <script>
+        let countdownInterval = null;
+        let alarmTime = null;
+        let isRunning = false;
+
+        // Actualizar reloj en tiempo real
+        function updateClock() {
+            const now = new Date();
+            
+            // Formato de hora
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
+            
+            // Formato de fecha
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('es-ES', options);
+            document.getElementById('currentDate').textContent = dateStr;
+        }
+
+        // Iniciar alarma
+        function startAlarm() {
+            const hours = parseInt(document.getElementById('hours').value) || 0;
+            const minutes = parseInt(document.getElementById('minutes').value) || 0;
+            const seconds = parseInt(document.getElementById('seconds').value) || 0;
+
+            const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+
+            if (totalSeconds <= 0) {
+                showMessage('⚠️ Por favor, ingresa un tiempo válido', 'warning');
+                return;
+            }
+
+            if (isRunning) {
+                showMessage('⚠️ La alarma ya está en ejecución', 'warning');
+                return;
+            }
+
+            isRunning = true;
+            alarmTime = totalSeconds;
+
+            document.getElementById('countdownDisplay').classList.add('active');
+            showMessage('✅ Alarma iniciada correctamente', 'success');
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        // Actualizar cuenta regresiva
+        function updateCountdown() {
+            if (alarmTime <= 0) {
+                triggerAlarm();
+                return;
+            }
+
+            const hours = Math.floor(alarmTime / 3600);
+            const minutes = Math.floor((alarmTime % 3600) / 60);
+            const seconds = alarmTime % 60;
+
+            const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('countdownTime').textContent = timeStr;
+
+            alarmTime--;
+        }
+
+        // Activar alarma
+        function triggerAlarm() {
+            clearInterval(countdownInterval);
+            isRunning = false;
+
+            const countdownDisplay = document.getElementById('countdownDisplay');
+            countdownDisplay.classList.add('alarm-ringing');
+            document.getElementById('countdownTime').textContent = '00:00:00';
+
+            showMessage('🔔 ¡ALARMA! El tiempo ha terminado', 'danger');
+
+            // Reproducir sonido (si el navegador lo permite)
+            playAlarmSound();
+
+            // Detener animación después de 5 segundos
+            setTimeout(() => {
+                countdownDisplay.classList.remove('alarm-ringing');
+            }, 5000);
+        }
+
+        // Detener alarma
+        function stopAlarm() {
+            if (!isRunning) {
+                showMessage('⚠️ No hay alarma en ejecución', 'warning');
+                return;
+            }
+
+            clearInterval(countdownInterval);
+            isRunning = false;
+            showMessage('⏸️ Alarma detenida', 'warning');
+        }
+
+        // Reiniciar alarma
+        function resetAlarm() {
+            clearInterval(countdownInterval);
+            isRunning = false;
+            alarmTime = null;
+
+            document.getElementById('hours').value = 0;
+            document.getElementById('minutes').value = 1;
+            document.getElementById('seconds').value = 0;
+            document.getElementById('countdownDisplay').classList.remove('active');
+            document.getElementById('countdownDisplay').classList.remove('alarm-ringing');
+
+            showMessage('🔄 Alarma reiniciada', 'success');
+        }
+
+        // Mostrar mensaje de estado
+        function showMessage(message, type) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type} active`;
+
+            setTimeout(() => {
+                statusMessage.classList.remove('active');
+            }, 3000);
+        }
+
+        // Reproducir sonido de alarma
+        function playAlarmSound() {
+            // Crear un contexto de audio
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Crear oscilador para generar sonido
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800; // Frecuencia en Hz
+            oscillator.type = 'sine'; // Tipo de onda
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            
+            oscillator.start();
+            
+            // Detener después de 2 segundos
+            setTimeout(() => {
+                oscillator.stop();
+            }, 2000);
+        }
+
+        // Inicializar reloj
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Permitir Enter para iniciar
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                startAlarm();
+            }
+        });
+    </script>
+</body>
+</html>
